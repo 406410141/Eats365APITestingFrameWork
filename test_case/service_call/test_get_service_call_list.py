@@ -1,5 +1,7 @@
 import pytest
+import allure
 from api_requests.service_call.get_service_call_list import get_service_call_list  # type: ignore
+pytestmark = [pytest.mark.api, pytest.mark.service_call]
 
 @pytest.fixture
 def get_service_call_list_fixture(access_token):
@@ -14,21 +16,24 @@ EXPECTED_SERVICE_CALL = {
 }
 
 
-@pytest.mark.api
-@pytest.mark.service_call
-@pytest.mark.TC_SC_001 
-def test_service_call_response_structure(get_service_call_list_fixture):
-    assert get_service_call_list_fixture.get('status_code', 200) == 200, f"Expected status code 200, but got {service_call_response.get('status_code')}"
+
+@allure.feature("Service Call Module")
+@allure.story("Get Service Call List")
+@allure.title("TC_SC_001 - Verify response structure and basic fields")
+def test_TC_SC_001_structure(get_service_call_list_fixture):
+    # 修正：將變數名稱改為與參數一致
+    status_code = get_service_call_list_fixture.get('status_code', 200)
+    assert status_code == 200, f"Expected 200, but got {status_code}"
     assert "version" in get_service_call_list_fixture, "Response missing 'version'"
     assert "msg_code" in get_service_call_list_fixture, "Response missing 'msg_code'"
-    assert get_service_call_list_fixture["version"]  > 0, "version should be > 0"
+    assert get_service_call_list_fixture["version"] > 0, "version should be > 0"
     assert get_service_call_list_fixture["msg_code"] == 0, "msg_code should be 0"
 
 
-@pytest.mark.api
-@pytest.mark.service_call
-@pytest.mark.TC_SC_002
-def test_service_call_content(get_service_call_list_fixture):
+@allure.feature("Service Call Module")
+@allure.story("Get Service Call List")
+@allure.title("TC_SC_002 - Verify service call list content and mandatory fields")
+def test_TC_SC_002_content(get_service_call_list_fixture):
     assert "service_call_list" in get_service_call_list_fixture, "Response missing 'service_call_list'"
     service_call_list = get_service_call_list_fixture.get("service_call_list",[])
     assert len(service_call_list) > 0  
@@ -37,12 +42,10 @@ def test_service_call_content(get_service_call_list_fixture):
         assert "name" in service_call, "Service Call missing 'name'"
 
 
-
-
-@pytest.mark.api
-@pytest.mark.service_call
-@pytest.mark.TC_SC_003
-def test_service_call_data(get_service_call_list_fixture):
+allure.feature("Service Call Module")
+@allure.story("Get Service Call List")
+@allure.title("TC_SC_003 - Verify specific service call data accuracy")
+def test_TC_SC_003_data(get_service_call_list_fixture):
     service_call_list = get_service_call_list_fixture.get("service_call_list", [])
     
     found = False

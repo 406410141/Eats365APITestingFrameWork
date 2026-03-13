@@ -3,11 +3,12 @@ import allure
 from api_requests.reservation_availability.get_reservation_availability import get_reservation_availability_response
 from conftest import SERVER, RESTAURANT_CODE  
 
+pytestmark = [pytest.mark.api, pytest.mark.check_reservation_availability]
 
-EXPECTED_RESPONSE ={
+EXPECTED_RESPONSE = {
     "availabilities": [
         {
-            "restaurant_code":RESTAURANT_CODE,
+            "restaurant_code": RESTAURANT_CODE,
             "is_available": False,
             "cached_at": 1738693875784
         }
@@ -19,37 +20,36 @@ EXPECTED_RESPONSE ={
 def get_reservation_availability_fixture(access_token):
     return get_reservation_availability_response(access_token)  
 
+@allure.feature("Reservation Module")
+@allure.story("Get Reservation Availability")
+@allure.title("TC_RRA_001 - Verify response status and basic message code")
+def test_TC_RRA_001_response_structure(get_reservation_availability_fixture):
+    # 這裡建議檢查 status_code 時，如果不存在可以預設 None 或 0，避免誤判
+    status_code = get_reservation_availability_fixture.get("status_code", 200)
+    assert status_code == 200, f"Expected 200, but got {status_code}"
+    assert "msg_code" in get_reservation_availability_fixture, "Response missing 'msg_code'"
+    assert get_reservation_availability_fixture["msg_code"] == 0, "msg_code should be 0"
 
-@pytest.mark.api
-@pytest.mark.check_reservation_availability
-@pytest.mark.TC_RRA_001
-def test_reservation_availability_response_structure(get_reservation_availability_fixture):
-    assert get_reservation_availability_fixture.get("status_code",200) ==200,f"Expected status code 200, but got {get_reservation_availability_fixture.get('status_code')}"
-    assert "msg_code" in get_reservation_availability_fixture , "Response missing 'msg_code'"
-    assert get_reservation_availability_fixture["msg_code"] == 0 ,  "msg_code should be 0"
-
-
-@pytest.mark.api
-@pytest.mark.check_reservation_availability
-@pytest.mark.TC_RRA_002
-def test_reservation_availability_content(get_reservation_availability_fixture):
-    assert "availabilities" in get_reservation_availability_fixture , "Response missing 'availabilities'"
-    reservation_info_list =  get_reservation_availability_fixture.get('availabilities')
-    #print(reservation_info)
+@allure.feature("Reservation Module")
+@allure.story("Get Reservation Availability")
+@allure.title("TC_RRA_002 - Verify data fields in availabilities list")
+def test_TC_RRA_002_content(get_reservation_availability_fixture):
+    assert "availabilities" in get_reservation_availability_fixture, "Response missing 'availabilities'"
+    reservation_info_list = get_reservation_availability_fixture.get('availabilities', [])
+    
     for reservation_info in reservation_info_list:
-        assert "restaurant_code" in reservation_info, "Response missing 'restaurant_code'"
-        assert "is_available" in reservation_info, "Response missing 'is_available'"
-        assert "cached_at" in reservation_info, "Response missing 'cached_at'"
+        assert "restaurant_code" in reservation_info, "Missing 'restaurant_code'"
+        assert "is_available" in reservation_info, "Missing 'is_available'"
+        assert "cached_at" in reservation_info, "Missing 'cached_at'"
 
-
-
-@pytest.mark.api
-@pytest.mark.check_reservation_availability_data
-@pytest.mark.TC_RRA_003
-def test_reservation_availability_data(get_reservation_availability_fixture):
+@allure.feature("Reservation Module")
+@allure.story("Get Reservation Availability")
+@allure.title("TC_RRA_003 - Verify specific availability data content")
+def test_TC_RRA_003_data(get_reservation_availability_fixture):
     response_list = get_reservation_availability_fixture.get('availabilities', [])
     expected_list = EXPECTED_RESPONSE.get("availabilities", [])
     expected_entry = expected_list[0] 
+    
     found = False
     for info in response_list:
         if (info["restaurant_code"] == expected_entry["restaurant_code"] and
@@ -57,4 +57,4 @@ def test_reservation_availability_data(get_reservation_availability_fixture):
             found = True
             break  
 
-    assert found, f"Expected response data with restaurant_code {expected_entry['restaurant_code']} not found"
+    assert found, f"Target data with restaurant_code {expected_entry['restaurant_code']} not found"
