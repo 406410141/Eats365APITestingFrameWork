@@ -1,0 +1,1 @@
+{"uuid": "4ef9437f-3349-46f1-b993-567176cce5b3", "children": ["a04e8b6a-aa2b-4663-85de-9bc3b49ab02c"], "befores": [{"name": "get_product_type_list_fixture", "status": "passed", "start": 1746504897390, "stop": 1746504897444}], "start": 1746504897390, "stop": 1746504897444}
