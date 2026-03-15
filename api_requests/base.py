@@ -10,10 +10,8 @@ class BaseAPI:
             self.headers["Authorization"] = f"Bearer {token}"
 
     def _send_request(self, method, endpoint, params=None, json=None):
-
         url = f"{self.base_url}{endpoint}"
-        
-
+    
         with allure.step(f"Sending {method} request to {endpoint}"):
             response = requests.request(
                 method=method, 

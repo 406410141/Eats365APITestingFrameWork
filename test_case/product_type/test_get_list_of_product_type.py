@@ -1,12 +1,12 @@
 import pytest
 import allure
-from api_requests.product_type.get_product_type_list import get_product_type_list 
+from api_requests.product_type.Product_TypeClient import ProductTypeClient 
 
 pytestmark = [pytest.mark.api, pytest.mark.product_type]
 
 @pytest.fixture
-def get_product_type_list_fixture(access_token):
-    return get_product_type_list(access_token)  
+def get_product_type_client(access_token):
+    return ProductTypeClient(token=access_token)
 
 EXPECTED_PRODUCT_TYPES = {
     1: "一般",
@@ -18,9 +18,9 @@ EXPECTED_PRODUCT_TYPES = {
 @allure.story("Product Type List")
 @allure.title("TC_PT_001 - Verify response structure and basic fields")
 @allure.description("This is description")
-def test_TC_PT_001_response_structure(get_product_type_list_fixture):
+def test_TC_PT_001_response_structure(get_product_type_client):
     # 僅修正原本的 test＿TC (全形) 為 test_TC (半形)
-    data = get_product_type_list_fixture 
+    data = get_product_type_client.get_product_type_list() 
     assert "version" in data, "Response missing 'version'"
     assert "msg_code" in data, "Response missing 'msg_code'"
     # 保持你原本的邏輯
@@ -30,8 +30,8 @@ def test_TC_PT_001_response_structure(get_product_type_list_fixture):
 @allure.feature("Product Module")
 @allure.story("Product Type List")
 @allure.title("TC_PT_002 - Verify existence of name and ID fields")
-def test_TC_PT_002_has_name_and_id(get_product_type_list_fixture):
-    data = get_product_type_list_fixture 
+def test_TC_PT_002_has_name_and_id(get_product_type_client):
+    data = get_product_type_client.get_product_type_list()
     assert "product_type_list" in data, "Response missing 'product_type_list'"
     product_type_list = data.get("product_type_list", [])
 
@@ -44,8 +44,8 @@ def test_TC_PT_002_has_name_and_id(get_product_type_list_fixture):
 @allure.feature("Product Module")
 @allure.story("Product Type List")
 @allure.title("TC_PT_003 - Verify nested sub-type list structure")
-def test_TC_PT_003_sub_type_structure(get_product_type_list_fixture):
-    data = get_product_type_list_fixture 
+def test_TC_PT_003_sub_type_structure(get_product_type_client):
+    data = get_product_type_client.get_product_type_list()
     product_type_list = data.get("product_type_list", [])
 
     for product_type in product_type_list:
@@ -62,8 +62,8 @@ def test_TC_PT_003_sub_type_structure(get_product_type_list_fixture):
 @allure.feature("Product Module")
 @allure.story("Product Type List")
 @allure.title("TC_PT_004 - Verify Traditional Chinese name content accuracy")
-def test_TC_PT_004_content(get_product_type_list_fixture):
-    data = get_product_type_list_fixture 
+def test_TC_PT_004_content(get_product_type_client):
+    data = get_product_type_client.get_product_type_list()
     product_type_list = data.get("product_type_list", [])
     
     id_name_map = {item["id"]: item["name"].get("zh_TW") for item in product_type_list if "id" in item and "name" in item}

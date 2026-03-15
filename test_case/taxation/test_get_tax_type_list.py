@@ -1,13 +1,13 @@
 import pytest
 import allure
-from api_requests.taxation.get__tax_type_list import tax_type_response  
+from api_requests.taxation.TaxationClient import TaxationClient
 
 # 套用 pytest.ini 中的標籤
 pytestmark = [pytest.mark.api, pytest.mark.tax_type]
 
 @pytest.fixture
-def get_tax_type_response_fixture(access_token):
-    return tax_type_response(access_token) 
+def get_tax_type_response_client(access_token):
+    return TaxationClient(token=access_token)
 
 EXPECTED_TAX_TYPE = {
     "id": 3007,
@@ -20,21 +20,23 @@ EXPECTED_TAX_TYPE = {
 @allure.feature("Taxation Module")
 @allure.story("Tax Type")
 @allure.title("TC_TT_001 - Verify tax type response structure and status")
-def test_TC_TT_001_structure(get_tax_type_response_fixture):
+def test_TC_TT_001_structure(get_tax_type_response_client):
+    data = get_tax_type_response_client.tax_type_response()
     # 修正變數名稱以符合 Fixture
-    status_code = get_tax_type_response_fixture.get('status_code', 200)
+    status_code = data.get('status_code', 200)
     assert status_code == 200, f"Expected 200, but got {status_code}"
-    assert "version" in get_tax_type_response_fixture, "Response missing 'version'"
-    assert "msg_code" in get_tax_type_response_fixture, "Response missing 'msg_code'"
-    assert get_tax_type_response_fixture["version"] > 0, "version should be > 0"
-    assert get_tax_type_response_fixture["msg_code"] == 0, "msg_code should be 0"
+    assert "version" in data, "Response missing 'version'"
+    assert "msg_code" in data, "Response missing 'msg_code'"
+    assert data["version"] > 0, "version should be > 0"
+    assert data["msg_code"] == 0, "msg_code should be 0"
 
 @allure.feature("Taxation Module")
 @allure.story("Tax Type")
 @allure.title("TC_TT_002 - Verify tax type list content and mandatory fields")
-def test_TC_TT_002_structure(get_tax_type_response_fixture):
-    assert "tax_type_list" in get_tax_type_response_fixture, "Response missing 'tax_type_list'"
-    tax_type_list = get_tax_type_response_fixture.get("tax_type_list", [])
+def test_TC_TT_002_structure(get_tax_type_response_client):
+    data = get_tax_type_response_client.tax_type_response()
+    assert "tax_type_list" in data, "Response missing 'tax_type_list'"
+    tax_type_list = data.get("tax_type_list", [])
     assert len(tax_type_list) > 0, "tax_type_list should not be empty"
     for tax_type in tax_type_list:
         assert "id" in tax_type, "Tax type missing 'id'"
@@ -46,8 +48,9 @@ def test_TC_TT_002_structure(get_tax_type_response_fixture):
 @allure.feature("Taxation Module")
 @allure.story("Tax Type")
 @allure.title("TC_TT_003 - Verify specific tax type data accuracy")
-def test_TC_TT_003_data(get_tax_type_response_fixture):
-    tax_type_list = get_tax_type_response_fixture.get("tax_type_list", [])
+def test_TC_TT_003_data(get_tax_type_response_client):
+    data = get_tax_type_response_client.tax_type_response()
+    tax_type_list = data.get("tax_type_list", [])
     found = False
     for tax_type in tax_type_list:
         if (tax_type["id"] == EXPECTED_TAX_TYPE["id"] and 
