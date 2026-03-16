@@ -72,7 +72,7 @@ This framework uses a layered design to improve code reusability:
 ---
 
 ## Project Structure 
-
+```Plaintext
 api_testing/
 ├── api_requests/               # API Client Layer (OOP)
 │   ├── base.py                 # Base API class with core request logic
@@ -97,8 +97,8 @@ api_testing/
 ├── .env                        # Environment variables (Base URL, Tokens)
 ├── .gitignore                  # Git ignore rules (pycache, allure-results)
 └── README.md                   # Project documentation
-
 ---
+```
 
 ## Environment Requirements
 
