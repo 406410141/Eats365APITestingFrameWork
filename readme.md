@@ -73,6 +73,69 @@ This framework uses a layered design to improve code reusability:
 
 ## Project Structure 
 
+
+graph TD
+    %% 定義樣式
+    classDef base fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef client fill:#ccf,stroke:#333,stroke-width:1px;
+    classDef test fill:#ff9,stroke:#333,stroke-width:1px;
+    classDef config fill:#ddd,stroke:#333,stroke-width:1px,stroke-dasharray: 5 5;
+
+    %% 核心層級
+    subgraph Layer3_Test_Cases [Test Case Layer (test_case/)]
+        TC_PT[test_get_list_of_product_type.py]
+        TC_Res[test_get_reservation_availability.py]
+        TC_Tax[test_get_tax_group_list.py]
+    end
+
+    subgraph Layer2_Clients [Client Layer (api_requests/)]
+        CL_PT[Product_TypeClient.py]
+        CL_Res[Reservation_AvailabilityClient.py]
+        CL_Tax[TaxationClient.py]
+    end
+
+    subgraph Layer1_Base [Base Layer (api_requests/base.py)]
+        BaseAPI((BaseAPI Class))
+    end
+
+    %% 配置與 Fixtures
+    subgraph Configuration
+        CONF[conftest.py <br/> (Pytest Fixtures)]
+        ENV[.env <br/> (BaseURL, Tokens)]
+    end
+
+    %% 外部依賴
+    RequestsLib[requests Library]
+    AllureLib[allure-pytest Library]
+
+    %% 關聯線
+    %% 繼承關係
+    CL_PT -.->|Inherits| BaseAPI
+    CL_Res -.->|Inherits| BaseAPI
+    CL_Tax -.->|Inherits| BaseAPI
+
+    %% 調用與注入關係
+    CONF -->|Reads| ENV
+    CONF -->|Instantiates| CL_PT
+    CONF -->|Instantiates| CL_Res
+    CONF -->|Instantiates| CL_Tax
+
+    TC_PT -->|Uses Fixture| CL_PT
+    TC_Res -->|Uses Fixture| CL_Res
+    TC_Tax -->|Uses Fixture| CL_Tax
+
+    %% 底層依賴
+    BaseAPI ==>|Uses| RequestsLib
+    BaseAPI ==>|Integrates| AllureLib
+
+    %% 應用樣式
+    class BaseAPI base;
+    class CL_PT,CL_Res,CL_Tax client;
+    class TC_PT,TC_Res,TC_Tax test;
+    class CONF,ENV config;
+
+
+
 api_testing/
 ├── api_requests/               # API Client Layer (OOP)
 │   ├── base.py                 # Base API class with core request logic
