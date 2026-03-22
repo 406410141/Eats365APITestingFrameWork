@@ -1,36 +1,47 @@
-# This is a basic workflow to help you get started with Actions
+name: API Automation CI
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-    # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  pytest-testing:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    # 解決你看到的 Node.js 警告（提前進入 Node 24 環境）
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.13"
 
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
+    - name: Install dependencies
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        python -m pip install --upgrade pip
+        # 優先安裝 requirements.txt，如果沒有就安裝核心套件
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest allure-pytest requests python-dotenv
+
+    - name: Run Pytest
+      # 這裡執行你的測試指令，並指定結果存放在 allure-results
+      run: |
+        pytest -v --alluredir=allure-results
+
+    - name: Upload Allure Results
+      # 即使測試失敗 (fail) 也要上傳報告結果，否則看不到錯誤訊息
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-results-artifact
+        path: allure-results
+        retention-days: 1
