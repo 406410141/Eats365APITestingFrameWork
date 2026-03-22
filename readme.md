@@ -104,3 +104,21 @@ api_testing/
 
 * **Python**: 3.13+
 * **Allure CLI**: Requires installation of system-level tools (macOS: `brew install allure`)
+
+
+## CI/CD & Automation
+ **GitHub Actions** push code to branch `main` It will trigger Github action
+
+### 1. GitHub Actions flow
+* **env**: Python 3.13
+* **trigger**: `push` / `pull_request` to branch `main` 
+* **OutPut**: Complete Test `allure-results-artifact`，Download in Action
+
+### 2.Local Execution
+Maunal Execute at Local Execution：
+```bash
+# Install
+pip install -r requirements.txt
+
+# Execute the test and save the report 
+pytest -v --alluredir=allure-results --clean-alluredir
