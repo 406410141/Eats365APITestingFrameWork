@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  # 定義你的測試服務名稱
+  api-test-service:
+    build: .                  # 告訴它：去讀目前的 Dockerfile
+    image: eats365-qa:v2      # Build 出來的映像檔標籤
+    ports:
+      - "8070:8070" 
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4          # 隧道：把盒子的 8070 對接到 Mac 的 8070
+    volumes:
+      - .:/Testing            # 傳送帶：同步你的程式碼與報告
+    tty: true                 # 讓容器保持開啟，不會跑完就消失
